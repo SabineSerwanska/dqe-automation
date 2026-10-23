@@ -157,3 +157,20 @@ def test_postgres_connector_returns_dataframe_and_closes_connection():
         {"record_id": 1, "category": "alpha"}
     ]
     connection.close.assert_called_once_with()
+
+
+@pytest.mark.example
+def test_postgres_connector_rolls_back_failed_query():
+    connection = MagicMock()
+    cursor = connection.cursor.return_value.__enter__.return_value
+    cursor.execute.side_effect = RuntimeError("Query failed")
+    connector = PostgresConnectorContextManager(
+        db_user="user", db_password="unused", db_host="localhost",
+        db_name="database", db_port=5432,
+    )
+    connector.connection = connection
+
+    with pytest.raises(RuntimeError, match="Query failed"):
+        connector.get_data_sql("SELECT invalid_column")
+
+    connection.rollback.assert_called_once_with()

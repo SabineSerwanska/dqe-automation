@@ -14,9 +14,9 @@ def source_data(db_connection):
         f.facility_type AS facility_type,
         p.first_name || ' ' || p.last_name AS full_name,
         SUM(v.treatment_cost) AS sum_treatment_cost
-    FROM "table".visits AS v
-    JOIN "table".facilities AS f ON f.id = v.facility_id
-    JOIN "table".patients AS p ON p.id = v.patient_id
+    FROM public.visits AS v
+    JOIN public.facilities AS f ON f.id = v.facility_id
+    JOIN public.patients AS p ON p.id = v.patient_id
     GROUP BY f.facility_type, p.first_name, p.last_name
     """
     return db_connection.get_data_sql(source_query)

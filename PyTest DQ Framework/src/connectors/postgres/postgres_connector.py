@@ -33,10 +33,14 @@ class PostgresConnectorContextManager:
         if self.connection is None:
             raise RuntimeError("PostgreSQL connection has not been opened")
 
-        with self.connection.cursor() as cursor:
-            cursor.execute(sql)
-            column_names = [column[0] for column in cursor.description or []]
-            rows = cursor.fetchall()
+        try:
+            with self.connection.cursor() as cursor:
+                cursor.execute(sql)
+                column_names = [column[0] for column in cursor.description or []]
+                rows = cursor.fetchall()
+        except Exception:
+            self.connection.rollback()
+            raise
         return pd.DataFrame(rows, columns=column_names)
 
 
