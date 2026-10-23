@@ -10,7 +10,7 @@ class ParquetReader:
 			raise FileNotFoundError(f"Parquet path does not exist: {dataset_path}")
 
 		if dataset_path.is_file():
-			return pd.read_parquet(dataset_path, engine="pyarrow")
+			return pd.read_parquet(dataset_path, engine="pyarrow", partitioning=None)
 
 		pattern = "**/*.parquet" if include_subfolders else "*.parquet"
 		parquet_files = sorted(dataset_path.glob(pattern))
@@ -20,9 +20,9 @@ class ParquetReader:
 			)
 
 		if include_subfolders:
-			return pd.read_parquet(dataset_path, engine="pyarrow")
+			return pd.read_parquet(dataset_path, engine="pyarrow", partitioning=None)
 
 		return pd.concat(
-			[pd.read_parquet(file_path, engine="pyarrow") for file_path in parquet_files],
+			[pd.read_parquet(file_path, engine="pyarrow", partitioning=None) for file_path in parquet_files],
 			ignore_index=True,
 		)

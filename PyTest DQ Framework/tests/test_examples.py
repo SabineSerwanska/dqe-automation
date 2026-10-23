@@ -121,10 +121,16 @@ def test_parquet_reader_loads_nested_partition_files(tmp_path):
     pd.DataFrame({"record_id": [1, 2]}).to_parquet(
         partition_path / "part-0.parquet", index=False
     )
+    second_partition_path = tmp_path / "category=beta"
+    second_partition_path.mkdir()
+    pd.DataFrame({"record_id": [1]}).to_parquet(
+        second_partition_path / "part-0.parquet", index=False
+    )
 
     actual_data = ParquetReader().process(tmp_path, include_subfolders=True)
 
-    assert actual_data["record_id"].tolist() == [1, 2]
+    assert list(actual_data.columns) == ["record_id"]
+    assert sorted(actual_data["record_id"].tolist()) == [1, 1, 2]
 
 
 @pytest.mark.example
